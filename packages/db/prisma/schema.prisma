@@ -26,32 +26,58 @@ model User {
   updatedAt          DateTime  @updatedAt
 
   // Relations
+  sips               SIP[]
   investments        Investment[]
   payments           Payment[]
-  Document           Document[]
+  documents          Document[]
+}
+
+model SIP {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  fundName         String
+  amcCode          String
+  schemeCode       String
+  amountPerInstallment Float
+  totalInstallments Int
+  frequency        SIPFrequency
+  startDate        DateTime
+  nextInstallment  DateTime?
+  endDate          DateTime?
+  status           SIPStatus @default(ACTIVE)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  investments      Investment[]
 }
 
 model Investment {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
-  fundName     String
-  amcCode      String
-  schemeCode   String
-  units        Float
-  navAtPurchase Float
-  currentNav   Float?
-  type         InvestmentType // SIP or Lumpsum
-  status       InvestmentStatus
-  startDate    DateTime
-  nextSipDate  DateTime?
-  createdAt    DateTime @default(now())
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  sipId           String?  // null for one-time lump sum
+  sip             SIP?     @relation(fields: [sipId], references: [id])
+  fundName        String
+  amcCode         String
+  schemeCode      String
+  units           Float
+  navAtPurchase   Float
+  currentNav      Float?
+  type            InvestmentType // SIP or Lumpsum
+  status          InvestmentStatus
+  purchaseDate    DateTime
+  createdAt       DateTime @default(now())
+
+  Payment Payment[]
 }
 
 model Payment {
   id              String   @id @default(cuid())
   userId          String
   user            User     @relation(fields: [userId], references: [id])
+  investmentId    String?
+  investment      Investment? @relation(fields: [investmentId], references: [id])
   txnRef          String
   amount          Float
   mode            PaymentMode
@@ -59,6 +85,15 @@ model Payment {
   upiRefId        String?
   status          PaymentStatus
   createdAt       DateTime @default(now())
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  docType     String   // "PAN", "BankProof", "NomineeForm"
+  s3Url       String
+  uploadedAt  DateTime @default(now())
 }
 
 enum KycStatus {
@@ -72,6 +107,19 @@ enum InvestmentType {
   LUMPSUM
 }
 
+enum SIPFrequency {
+  MONTHLY
+  QUARTERLY
+  WEEKLY
+}
+
+enum SIPStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
 enum PaymentStatus {
   INITIATED
   SUCCESS
@@ -83,20 +131,12 @@ enum PaymentMode {
   NETBANKING
   AUTO_DEBIT
 }
-enum InvestmentStatus {
-  PENDING     // User initiated but not yet confirmed (e.g., payment pending)
-  SUCCESS     // Successfully purchased units
-  FAILED      // Payment failed or rejected by AMC
-  REDEEMED    // User has sold or withdrawn the investment
-  CANCELLED   // Cancelled before processing
-  ONGOING     // Active SIP investment with next installments pending
-}
 
-model Document {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  docType     String   // "PAN", "BankProof", "NomineeForm"
-  s3Url       String
-  uploadedAt  DateTime @default(now())
+enum InvestmentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REDEEMED
+  CANCELLED
+  ONGOING
 }
