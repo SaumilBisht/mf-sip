@@ -6,11 +6,13 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "exports":{
-    "./client":"./index.ts"
+  "exports": {
+    "./client": "./index.ts"
   },
   "dependencies": {
-    "@repo/typescript-config":"workspace:*"
+    "@prisma/client": "^6.17.1",
+    "@repo/typescript-config": "workspace:*",
+    "prisma": "^6.17.1"
   },
   "keywords": [],
   "author": "",

@@ -7,4 +7,96 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model User {
+  id                 String   @id @default(cuid())
+  fullName           String
+  email              String   @unique
+  phone              String   @unique
+  encryptedPan       String
+  encryptedBankAcc   String?
+  encryptedIfsc      String?
+  nomineeName        String?
+  nomineeRelation    String?
+  kycStatus          KycStatus @default(PENDING)
+  ckycRefId          String?
+  digilockerToken    String?   // only ref, not file
+  fatcaDeclaration   Json?
+  languagePref       String?   // "en" or "hi"
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
+  // Relations
+  investments        Investment[]
+  payments           Payment[]
+  Document           Document[]
+}
+
+model Investment {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  fundName     String
+  amcCode      String
+  schemeCode   String
+  units        Float
+  navAtPurchase Float
+  currentNav   Float?
+  type         InvestmentType // SIP or Lumpsum
+  status       InvestmentStatus
+  startDate    DateTime
+  nextSipDate  DateTime?
+  createdAt    DateTime @default(now())
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  txnRef          String
+  amount          Float
+  mode            PaymentMode
+  razorpayOrderId String?
+  upiRefId        String?
+  status          PaymentStatus
+  createdAt       DateTime @default(now())
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum InvestmentType {
+  SIP
+  LUMPSUM
+}
+
+enum PaymentStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+}
+
+enum PaymentMode {
+  UPI
+  NETBANKING
+  AUTO_DEBIT
+}
+enum InvestmentStatus {
+  PENDING     // User initiated but not yet confirmed (e.g., payment pending)
+  SUCCESS     // Successfully purchased units
+  FAILED      // Payment failed or rejected by AMC
+  REDEEMED    // User has sold or withdrawn the investment
+  CANCELLED   // Cancelled before processing
+  ONGOING     // Active SIP investment with next installments pending
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  docType     String   // "PAN", "BankProof", "NomineeForm"
+  s3Url       String
+  uploadedAt  DateTime @default(now())
+}
