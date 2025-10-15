@@ -1,5 +1,5 @@
 import { z } from "zod"
-
+/*
 export const CreateUserSchema = z.object({
   full_name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email").min(3).max(50),
@@ -10,3 +10,4 @@ export const SignInSchema = z.object({
   email: z.string().email("Invalid email").min(3).max(50),
   password: z.string(),
 });
+*/
