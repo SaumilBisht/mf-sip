@@ -16,7 +16,7 @@ export default function Header() {
     try {
       setLoading(true)
       const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/sync`,
+        `${process.env.BACKEND_URL}/auth/sync`,
         { email: user.email, name: user.name },
         { withCredentials: true }
       )

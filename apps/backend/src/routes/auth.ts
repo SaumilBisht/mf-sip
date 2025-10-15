@@ -7,6 +7,7 @@ const router: Router = express.Router();
 router.use(cookieParser())
 router.post("/sync", async (req, res) => {
 
+  console.log("reached be")
   try{
     const { email, name } = req.body
     if (!email || !name) return res.status(400).json({ error: "Email and name required" })

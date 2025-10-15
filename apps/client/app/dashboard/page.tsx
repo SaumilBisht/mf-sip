@@ -6,7 +6,7 @@ export default async function Dashboard() {
   const user = session?.user
 
   return (
-    <main className="mt-[64px] py-2 px-6"> {/* padding-top equals header height */}
+    <main className="mt-[64px] py-2 px-6"> 
       <h1 className="text-2xl mb-4">Available Mutual Funds</h1>
       <div className="border p-4 mb-6 rounded-lg shadow">
         <p>All mutual fund details will appear here.</p>
