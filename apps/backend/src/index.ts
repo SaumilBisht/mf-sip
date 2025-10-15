@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
-import {prisma} from "db/client" 
+import { authRouter } from "./routes/auth.js";
+import { userRouter } from "./routes/user.js";
 
 const app=express();
 app.use(express.json());
@@ -12,8 +13,8 @@ app.get("/",async(req,res)=>{
   })
 })
 
-app.get("/details/cred",async(req,res)=>{
-  
-})
+app.use('/auth', authRouter);
+app.use('/user', userRouter);
+
 app.listen(3002);
 

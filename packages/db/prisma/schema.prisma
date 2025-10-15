@@ -8,28 +8,40 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 model User {
-  id                 String   @id @default(cuid())
-  fullName           String
-  email              String   @unique
-  phone              String   @unique
-  encryptedPan       String
-  encryptedBankAcc   String?
-  encryptedIfsc      String?
-  nomineeName        String?
-  nomineeRelation    String?
-  kycStatus          KycStatus @default(PENDING)
-  ckycRefId          String?
-  digilockerToken    String?   // only ref, not file
-  fatcaDeclaration   Json?
-  languagePref       String?   // "en" or "hi"
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id               String     @id @default(cuid())
+  fullName         String
+  email            String     @unique
+  currentStep      Int        @default(1)
+  phone            String?    @unique
+  encryptedPan     String?
+  encryptedBankAcc String?
+  encryptedIfsc    String?
+  upiId            String?      // UPI ID (if provided)
+  dob              DateTime?    // Date of Birth
+  maritalStatus    String?      // e.g. "Single", "Married"
+  education        String?      // Highest education level
+  motherName       String?
+  fatherName       String?
+  income           Float?       // Annual income (optional)
+  sourceOfIncome   String?      // e.g. "Salary", "Business"
+  countryOfBirth   String?      // Country of birth
+  nationality      String?      // Nationality
+  taxResidency     Json?        // FATCA/CRS declaration (could store list of countries)
+  nomineeName      String?
+  nomineeRelation  String?
+  kycStatus        KycStatus   @default(PENDING)
+  ckycRefId        String?      // CKYC reference after PAN verification
+  digilockerToken  String?      // e.g. DigiLocker access token or reference
+  fatcaDeclaration Json?        // e.g. JSON of FATCA form answers
+  languagePref     String?      // "en" or "hi"
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   // Relations
-  sips               SIP[]
-  investments        Investment[]
-  payments           Payment[]
-  documents          Document[]
+  sips             SIP[]
+  investments      Investment[]
+  payments         Payment[]
+  documents        Document[]
 }
 
 model SIP {
@@ -93,6 +105,7 @@ model Document {
   user        User     @relation(fields: [userId], references: [id])
   docType     String   // "PAN", "BankProof", "NomineeForm"
   s3Url       String
+  //SIGNATURE FILE OR SOMETHING
   uploadedAt  DateTime @default(now())
 }
 
