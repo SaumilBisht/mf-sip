@@ -35,8 +35,8 @@ router.post("/sync", async (req, res) => {
           currentStep: 1,
           phone:"",
           encryptedPan:""
-        }
-      }) as any;
+        } 
+      })
     }
 
     if (!user) {
