@@ -105,18 +105,31 @@ router.post("/otp", verifyAuth,async (req, res) => {
 
     await setKey(`otp:${mobile}`, { otp, retries: 0 }, OTP_EXPIRY_SEC);
 
-    //send via MSG91
-    const msg = `Your verification code is ${otp}`;
-    await axios.get("https://api.msg91.com/api/v5/otp", {
-      params: {
-        template_id: process.env.DLT_TEMPLATE_ID,
-        mobile: `91${mobile}`, //India only
-        authkey: MSG91_AUTH_KEY,
-        otp,
-      },
-    });
-
-    res.json({ success: true, message: "OTP sent successfully" });
+    //send via MSG91;
+    try {
+      const resp = await axios.get("https://api.msg91.com/api/v5/otp", {
+        params: {
+          template_id: process.env.DLT_TEMPLATE_ID,
+          mobile: `91${mobile}`, //India only
+          authkey: MSG91_AUTH_KEY,
+          otp,
+        },
+      });
+      console.log('MSG91 Response:', resp.data);
+      
+      if (resp.data.type === 'error') {
+        throw new Error(resp.data.message || 'Failed to send OTP');
+      }
+      
+      res.json({ success: true, message: "OTP sent successfully" });
+    } catch (err: any) {
+      console.error('MSG91 Error:', err.response?.data || err.message);
+      res.status(400).json({ 
+        success: false, 
+        message: "Failed to send OTP",
+        error: err.response?.data?.message || err.message
+      });
+    }
   } catch (err: any) 
   {
     console.error(err);
