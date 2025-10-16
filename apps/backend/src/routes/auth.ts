@@ -8,8 +8,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import {requestOTPSchema,verifyOTPSchema} from "common/otp"
 import axios from "axios"
-import { redis, setKey, getKey, delKey } from "redis-service/otp";
-import { verifyAuth } from '../middlewares/auth';
+import { setKey, getKey, delKey } from "redis-service/otp";
+import { verifyAuth } from '../middlewares/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

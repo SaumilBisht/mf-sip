@@ -6,7 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "ts-node dist/index.js"
+    "dev": "pnpm run build && node dist/index.js"
   },
   "keywords": [],
   "author": "",
