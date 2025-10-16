@@ -2,7 +2,11 @@ import jwt from "jsonwebtoken"
 import { Request,Response,NextFunction } from "express"
 export function verifyAuth(req:Request, res:Response, next:NextFunction) {
   const token = req.cookies.auth_token
-  if (!token) return res.status(401).json({ error: "Not authorized" })
+  if (!token) 
+  {
+    console.log("Token Lao");
+    return res.status(401).json({ error: "Not authorized" })
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!)

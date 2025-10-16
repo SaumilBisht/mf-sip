@@ -8,12 +8,18 @@ router.use(cookieParser())
 
 
 router.get("/status", verifyAuth, async (req, res) => {
-  const user = await prisma.user.findUnique({//@ts-ignore
-    where: { id: req.user.userId },
-    select: { currentStep: true },
-  })
-  if (!user) return res.status(404).json({ error: "User not found" })
-  res.json({ currentStep: user.currentStep })
+  console.log("Status Check pe pahunch Gye");
+  try{
+    const user = await prisma.user.findUnique({//@ts-ignore
+      where: { id: req.user.userId },
+      select: { currentStep: true },
+    })
+    if (!user) return res.status(404).json({ error: "User not found" })
+    res.json({ currentStep: user.currentStep })
+  }
+  catch(e){
+    console.log(e);
+  }
 })
 
 export  {router as userRouter};

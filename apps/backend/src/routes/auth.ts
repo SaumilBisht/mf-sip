@@ -3,11 +3,22 @@ import express from 'express';
 import jwt from "jsonwebtoken"
 import { Router } from 'express';
 import cookieParser from "cookie-parser"
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// recreate __dirname for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// load .env from root (2 levels up from dist)
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
+
 const router: Router = express.Router();
 router.use(cookieParser())
 router.post("/sync", async (req, res) => {
 
-  console.log("reached be")
+  console.log("reached google signin")
   try{
     const { email, name } = req.body
     if (!email || !name) return res.status(400).json({ error: "Email and name required" })
@@ -59,13 +70,18 @@ router.post("/sync", async (req, res) => {
 
 
 router.post("/signout", async (req, res) => {
-
-  res.clearCookie("auth_token", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-  })
-  return res.json({ success: true })
+  console.log("reached google signout")
+  try{
+    res.clearCookie("auth_token", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    })
+    return res.json({ success: true })
+  }
+  catch(e){
+    console.log(e);
+  }
 })
 
 export  {router as authRouter};

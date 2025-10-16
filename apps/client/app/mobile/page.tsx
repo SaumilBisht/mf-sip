@@ -1,21 +1,33 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import axios from "axios"
-import { redirect } from "next/navigation"
-import { auth } from "@/auth"
+import { useRouter } from "next/navigation"
 
-export default async function MobilePage() {
-  const session = await auth()
-  const user = session?.user
-  if (!user) redirect("/dashboard")
+export default function MobilePage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
 
-  const { data } = await axios.get(`${process.env.BACKEND_URL}/user/status`, {
-    withCredentials: true,
-  })
-  if (data.currentStep < 1) redirect("/dashboard")
-  if (data.currentStep > 1) redirect("/kyc")
+  useEffect(() => {
+    async function checkStatus() {
+      try {
+        const res = await axios.get(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/status`,
+          { withCredentials: true }
+        )
+        const data = res.data
+        if (data.currentStep < 1) router.push("/dashboard")
+        else if (data.currentStep > 1) router.push("/kyc")
+      } catch (err) {
+        router.push("/dashboard")
+      } finally {
+        setLoading(false)
+      }
+    }
+    checkStatus()
+  }, [router])
 
-  return (
-    <div>
-      <h1>Mobile Verification (OTP)</h1>
-    </div>
-  )
+  if (loading) return <div>Loading...</div>
+
+  return <h1>Mobile Verification (OTP)</h1>
 }

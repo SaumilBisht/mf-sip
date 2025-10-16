@@ -11,35 +11,16 @@ export default function Header() {
   const user = session?.user
   const [loading, setLoading] = useState(false)
 
-  const handleSync = async () => {
-    if (!user) return
-    try {
-      setLoading(true)
-      const res = await axios.post(
-        `${process.env.BACKEND_URL}/auth/sync`,
-        { email: user.email, name: user.name },
-        { withCredentials: true }
-      )
-      const { currentStep } = res.data
-      if (currentStep === 1) router.push("/kyc")
-      else if (currentStep === 2) router.push("/bank-link")
-      else router.push("/dashboard")
-    } catch (err) {
-      console.error("Error syncing user:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
+
 
   const handleSignIn = async () => {
-    await signIn("google", { redirect: false })
-    setTimeout(handleSync, 1000)
+    await signIn("google", { callbackUrl: "/post-auth" })
   }
 
   const handleSignOut = async () => {
     try {
-      await axios.post(`${process.env.BACKEND_URL}/auth/signout`, {}, { withCredentials: true })
-      await signOut({ redirect: false })
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/signout`, {}, { withCredentials: true })
+      await signOut()
       router.refresh()
     } catch (err) {
       console.error("Signout failed:", err)
