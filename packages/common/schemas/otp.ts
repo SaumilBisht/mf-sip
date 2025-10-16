@@ -1,9 +1,10 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-export const sendOtpSchema = z.object({
-  phone: z.string().min(10).max(15),
+export const requestOTPSchema = z.object({
+  mobile: z.string().regex(/^\d{10}$/, "Invalid Indian mobile number"),
 });
-export const verifyOtpSchema = z.object({
-  phone: z.string().min(10).max(15),
-  otp:   z.string().length(6),  // assuming 6-digit OTP
+
+export const verifyOTPSchema = z.object({
+  mobile: z.string().regex(/^\d{10}$/, "Invalid Indian mobile number"),
+  otp: z.string().length(6, "OTP must be 6 digits"),
 });

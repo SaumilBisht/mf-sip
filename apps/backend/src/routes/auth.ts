@@ -6,12 +6,14 @@ import cookieParser from "cookie-parser"
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import {requestOTPSchema,verifyOTPSchema} from "common/otp"
+import axios from "axios"
+import { redis, setKey, getKey, delKey } from "redis-service/otp";
+import { verifyAuth } from '../middlewares/auth';
 
-// recreate __dirname for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// load .env from root (2 levels up from dist)
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const router: Router = express.Router();
@@ -83,5 +85,81 @@ router.post("/signout", async (req, res) => {
     console.log(e);
   }
 })
+
+const MSG91_AUTH_KEY = process.env.AUTH_KEY; 
+const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_RETRIES = 5;
+
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+router.post("/otp", verifyAuth,async (req, res) => {
+  try {
+    const data = requestOTPSchema.parse(req.body);
+    const mobile = data.mobile;
+
+    const otp = generateOTP();
+    const expires = Date.now() + OTP_EXPIRY_MS;
+    const OTP_EXPIRY_SEC = 300;//seconds
+
+    await setKey(`otp:${mobile}`, { otp, retries: 0 }, OTP_EXPIRY_SEC);
+
+    //send via MSG91
+    const msg = `Your verification code is ${otp}`;
+    await axios.get("https://api.msg91.com/api/v5/otp", {
+      params: {
+        template_id: process.env.DLT_TEMPLATE_ID,
+        mobile: `91${mobile}`, //India only
+        authkey: MSG91_AUTH_KEY,
+        otp,
+      },
+    });
+
+    res.json({ success: true, message: "OTP sent successfully" });
+  } catch (err: any) 
+  {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+router.post("/otp/verify", verifyAuth ,async(req, res) => {
+  try {
+    const data = verifyOTPSchema.parse(req.body);
+    const mobile = data.mobile;
+    const otp = data.otp;
+
+    const record = await getKey(`otp:${mobile}`);
+    if (!record) return res.status(400).json({ message: "No OTP sent" });
+
+    if (record.retries >= MAX_RETRIES) return res.status(429).json({ message: "Max retries exceeded" });
+
+    if (record.otp !== otp) {
+      record.retries += 1;
+      await setKey(`otp:${mobile}`, record, 300); 
+      return res.status(400).json({ message: `Invalid OTP. Attempts left: ${MAX_RETRIES - record.retries}` });
+    }
+
+    await delKey(`otp:${mobile}`);
+
+    await prisma.user.update({
+      where:{//@ts-ignore
+        id:req.user.userId
+      },
+      data:{
+        phone:mobile,
+        currentStep:2
+      }
+    })
+    return res.json({ success: true, message: "OTP verified successfully" });
+
+  } 
+  catch (err: any) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 
 export  {router as authRouter};
