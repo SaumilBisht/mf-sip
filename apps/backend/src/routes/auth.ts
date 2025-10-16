@@ -10,6 +10,7 @@ import {requestOTPSchema,verifyOTPSchema} from "common/otp"
 import axios from "axios"
 import { setKey, getKey, delKey } from "redis-service/otp";
 import { verifyAuth } from '../middlewares/auth.js';
+import Twilio from "twilio";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,41 +94,36 @@ const MAX_RETRIES = 5;
 function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
-
+const client = Twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER!; 
 router.post("/otp", verifyAuth,async (req, res) => {
   try {
     const data = requestOTPSchema.parse(req.body);
     const mobile = data.mobile;
 
     const otp = generateOTP();
-    const expires = Date.now() + OTP_EXPIRY_MS;
     const OTP_EXPIRY_SEC = 300;//seconds
 
     await setKey(`otp:${mobile}`, { otp, retries: 0 }, OTP_EXPIRY_SEC);
 
     //send via MSG91;
     try {
-      const resp = await axios.get("https://api.msg91.com/api/v5/otp", {
-        params: {
-          template_id: process.env.DLT_TEMPLATE_ID,
-          mobile: `91${mobile}`, //India only
-          authkey: MSG91_AUTH_KEY,
-          otp,
-        },
+      const message = await client.messages.create({
+        body: `Your verification code is ${otp}`,
+        from: TWILIO_PHONE_NUMBER,    // sender
+        to: `+91${mobile}`,           // recipient
       });
-      console.log('MSG91 Response:', resp.data);
+
+      console.log("Twilio response:", message.sid);
       
-      if (resp.data.type === 'error') {
-        throw new Error(resp.data.message || 'Failed to send OTP');
-      }
       
       res.json({ success: true, message: "OTP sent successfully" });
     } catch (err: any) {
-      console.error('MSG91 Error:', err.response?.data || err.message);
-      res.status(400).json({ 
-        success: false, 
+      console.error("Twilio error:", err.message);
+      res.status(400).json({
+        success: false,
         message: "Failed to send OTP",
-        error: err.response?.data?.message || err.message
+        error: err.message,
       });
     }
   } catch (err: any) 
