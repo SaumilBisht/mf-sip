@@ -41,7 +41,6 @@ router.post("/personal", verifyAuth,async (req, res) => {
       data: {
         fatherName: data.fatherName,
         motherName: data.motherName,
-        dob: data.dob ? new Date(data.dob) : undefined,
         maritalStatus: data.maritalStatus,
         education: data.education,
         gender: data.gender,
@@ -60,7 +59,7 @@ router.post("/personal", verifyAuth,async (req, res) => {
   }
 });
 
-router.post("/user/finance",verifyAuth, async (req, res) => {
+router.post("/finance",verifyAuth, async (req, res) => {
   //@ts-ignore
   const userId = req.user?.userId;
 

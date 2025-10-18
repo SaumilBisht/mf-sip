@@ -12,7 +12,6 @@ export const verifyOTPSchema = z.object({
 export const personalInfoSchema = z.object({
   fatherName: z.string().min(1, "Father's name is required"),
   motherName: z.string().min(1, "Mother's name is required"),
-  dob: z.string().optional(),
   maritalStatus: z.enum(["SINGLE", "MARRIED", "DIVORCED", "WIDOWED", "OTHER"]),
   education: z.enum(["UNDERGRADUATE", "GRADUATE", "POST_GRADUATE", "DOCTORATE", "OTHER"]),
   gender: z.enum(["MALE", "FEMALE", "OTHER", "PREFER_NOT_TO_SAY"]),
