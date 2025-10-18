@@ -58,7 +58,10 @@ router.post("/user", verifyAuth, upload.single("signature"), async (req, res) =>
     console.log("Posted to s3",s3Url)
     await prisma.user.update({
       where: { id: userId },
-      data: { signatureUrl: s3Url },
+      data: { 
+        signatureUrl: s3Url,
+        currentStep: { increment: 1 }
+      }
     });
 
     res.json({ success: true, signatureKey: s3Url });
