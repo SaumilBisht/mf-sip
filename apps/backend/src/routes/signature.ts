@@ -52,7 +52,7 @@ router.post("/user", verifyAuth, upload.single("signature"), async (req, res) =>
     if (!["image/png", "image/jpeg", "image/jpg"].includes(mimeType))
       return res.status(400).json({ message: "Invalid file type" });
 
-    const fileName = `${userId}-${Date.now()}.png`;
+    const fileName = `${userId}.png`;//replace old one
     const s3Url = await uploadToS3(req.file.buffer, fileName, mimeType);
 
     console.log("Posted to s3",s3Url)

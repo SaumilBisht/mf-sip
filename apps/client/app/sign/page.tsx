@@ -137,7 +137,14 @@ export default function Sign() {
               alt="user signature"
               className="rounded-lg shadow-md mx-auto border max-h-48"
             />
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              Continue to Dashboard
+            </button>
           </div>
+          
         )}
       </div>
     </div>
