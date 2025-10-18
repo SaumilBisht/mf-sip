@@ -60,7 +60,7 @@ router.post("/user", verifyAuth, upload.single("signature"), async (req, res) =>
       where: { id: userId },
       data: { 
         signatureUrl: s3Url,
-        currentStep: { increment: 1 }
+        currentStep: 7
       }
     });
 
