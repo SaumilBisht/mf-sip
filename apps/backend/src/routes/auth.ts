@@ -101,6 +101,7 @@ router.post("/otp", verifyAuth,async (req, res) => {
 
     const otp = generateOTP();
     const OTP_EXPIRY_SEC = 300;//seconds
+    console.log(otp)
 
     await setKey(`otp:${mobile}`, { otp, retries: 0 }, OTP_EXPIRY_SEC);
 
