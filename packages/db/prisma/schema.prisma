@@ -18,15 +18,19 @@ model User {
   encryptedIfsc    String?
   upiId            String?      // UPI ID (if provided)
   dob              DateTime?    // Date of Birth
-  maritalStatus    String?      // e.g. "Single", "Married"
-  education        String?      // Highest education level
+  maritalStatus    MaritalStatus?      // e.g. "Single", "Married"
+  education        EducationLevel?      // Highest education level
   motherName       String?
   fatherName       String?
-  income           Float?       // Annual income (optional)
-  sourceOfIncome   String?      // e.g. "Salary", "Business"
+  gender           Gender?
+  annualIncome    AnnualIncome?
+  incomeSource    IncomeSource?
+  taxResidency    TaxResidency?
+  residentialStatus ResidentialStatus?
+  occupationType   OccupationType?
   countryOfBirth   String?      // Country of birth
   nationality      String?      // Nationality
-  taxResidency     Json?        // FATCA/CRS declaration (could store list of countries)
+
   nomineeName      String?
   nomineeRelation  String?
   kycStatus        KycStatus   @default(PENDING)
@@ -152,4 +156,68 @@ enum InvestmentStatus {
   REDEEMED
   CANCELLED
   ONGOING
+}
+
+enum EducationLevel {
+  UNDERGRADUATE
+  GRADUATE
+  POST_GRADUATE
+  DOCTORATE
+  OTHER
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+  OTHER
+}
+
+enum AnnualIncome {
+  BELOW_2_LAKH
+  TWO_TO_FIVE_LAKH
+  FIVE_TO_TEN_LAKH
+  TEN_TO_TWENTYFIVE_LAKH
+  ABOVE_25_LAKH
+  OTHER
+}
+
+enum IncomeSource {
+  SALARIED
+  SELF_EMPLOYED
+  BUSINESS_OWNER
+  STUDENT
+  RETIRED
+  OTHER
+}
+
+enum TaxResidency {
+  INDIA
+  NRI
+  FOREIGN_NATIONAL
+}
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum ResidentialStatus {
+  RESIDENT_INDIVIDUAL
+  NRI
+  FOREIGN_NATIONAL
+}
+
+enum OccupationType {
+  PRIVATE_SECTOR
+  PUBLIC_SECTOR
+  GOVERNMENT_SERVICE
+  BUSINESS
+  PROFESSIONAL
+  STUDENT
+  RETIRED
+  HOUSEWIFE
+  OTHER
 }

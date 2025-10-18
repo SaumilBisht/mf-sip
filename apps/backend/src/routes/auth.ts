@@ -87,8 +87,6 @@ router.post("/signout", async (req, res) => {
   }
 })
 
-const MSG91_AUTH_KEY = process.env.AUTH_KEY; 
-const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
 const MAX_RETRIES = 5;
 
 function generateOTP() {
@@ -106,7 +104,7 @@ router.post("/otp", verifyAuth,async (req, res) => {
 
     await setKey(`otp:${mobile}`, { otp, retries: 0 }, OTP_EXPIRY_SEC);
 
-    //send via MSG91;
+    //send via twilio;
     try {
       const message = await client.messages.create({
         body: `Your verification code is ${otp}`,
