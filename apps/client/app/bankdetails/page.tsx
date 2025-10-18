@@ -29,5 +29,5 @@ export default function BankDetails() {
 
   if (loading) return <div>Loading...</div>
 
-  return <h1>Finance Page</h1>
+  return <h1>Bank details Page</h1>
 }
