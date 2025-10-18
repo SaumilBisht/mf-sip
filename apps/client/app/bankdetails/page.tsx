@@ -17,7 +17,7 @@ export default function BankDetails() {
         )
         const data = res.data
         if (data.currentStep < 5) router.push("/finance")
-        else router.push("/dashboard")
+        else if(data.currentStep>5) router.push("/sign")
       } catch (err) {
         router.push("/dashboard")
       } finally {

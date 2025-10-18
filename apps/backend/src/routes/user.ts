@@ -10,7 +10,7 @@ router.use(cookieParser())
 
 
 router.get("/status", verifyAuth, async (req, res) => {
-  console.log("Status Check pe pahunch Gye");
+
   try{
     const user = await prisma.user.findUnique({//@ts-ignore
       where: { id: req.user.userId },
